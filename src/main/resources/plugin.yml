@@ -1,0 +1,5 @@
+name: HyriMoutron
+main: fr.hyriode.moutron.HyriMoutron
+version: @version@
+depend: [Hyrame]
+authors: [AstFaster]
