@@ -1,3 +1,10 @@
 {
-  "game.description": "&fMontez à dos d'un mouton supersonique et éliminez vos adversaires\n&fen coupant leur chemin. Récupérez des power-ups sur la\n&fcarte pour survivre et rendre la tâche plus compliquée aux autres joueurs."
+  "game.description": "&fMontez à dos d'un mouton supersonique et éliminez vos adversaires en coupant leur chemin. Récupérez des power-ups sur la fcarte pour survivre et rendre la tâche plus compliquée aux autres joueurs.",
+
+  "player.eliminated": "%player% &7est éliminé.",
+
+  "scoreboard.players": "Joueurs: ",
+  "scoreboard.time": "Temps: ",
+
+  "starting.go": "&bGO !"
 }

@@ -1,3 +1,10 @@
 {
-  "game.description": "&fRide on a supersonic sheep and eliminate all your opponents\n&fby cutting their way. Pick up power-ups on the map to survive\n&fand ot make it harder for other players.",
+  "game.description": "&fRide on a supersonic sheep and eliminate all your opponents by cutting their way. Pick up power-ups on the map to survive and ot make it harder for other players.",
+
+  "player.eliminated": "%player% &7is eliminated.",
+
+  "scoreboard.players": "Players: ",
+  "scoreboard.time": "Time: ",
+
+  "starting.go": "&bGO !"
 }

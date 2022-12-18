@@ -17,6 +17,13 @@ public enum MTMessage {
 
     GAME_DESCRIPTION("game.description"),
 
+    PLAYER_ELIMINATED("player.eliminated"),
+
+    SCOREBOARD_PLAYERS("scoreboard.players"),
+    SCOREBOARD_TIME("scoreboard.time"),
+
+    STARTING_GO("starting.go"),
+
     ;
 
     private HyriLanguageMessage languageMessage;
@@ -48,10 +55,6 @@ public enum MTMessage {
 
     public String asString(Player player) {
         return this.asString(IHyriPlayer.get(player.getUniqueId()));
-    }
-
-    public void sendTo(Player player) {
-        player.sendMessage(this.asString(player));
     }
 
     public List<String> asList(IHyriPlayer account) {
