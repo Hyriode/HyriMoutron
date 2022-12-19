@@ -25,7 +25,7 @@ public abstract class MTPowerUp extends HyriItem<HyriMoutron> {
     @Override
     public ItemStack onPreGive(IHyrame hyrame, Player player, int slot, ItemStack itemStack) {
         return new ItemBuilder(itemStack)
-                .withName(itemStack.getItemMeta().getDisplayName() + " " + MTMessage.ITEM_RIGHT_CLICK.asString(player))
+                .withName(ChatColor.AQUA + itemStack.getItemMeta().getDisplayName() + " " + MTMessage.ITEM_RIGHT_CLICK.asString(player))
                 .build();
     }
 

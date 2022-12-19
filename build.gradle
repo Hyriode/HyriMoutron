@@ -23,7 +23,15 @@ tasks.withType(Javadoc) {
 repositories {
     mavenCentral()
 
-    maven { url = 'https://oss.sonatype.org/content/groups/public/' }
+    maven {
+        name = 'spigotmc-repo'
+        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
+
+    maven {
+        name = 'sonatype'
+        url = 'https://oss.sonatype.org/content/groups/public/'
+    }
 
     maven {
         name = 'Hyrame_maven'
@@ -38,7 +46,7 @@ repositories {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-//    implementation 'fr.hyriode:hyrame:1.3.3'
+    implementation 'fr.hyriode:hyrame:1.3.5'
 }
 
 processResources {
