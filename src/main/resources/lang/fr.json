@@ -1,10 +1,28 @@
 {
-  "game.description": "&fMontez à dos d'un mouton supersonique et éliminez vos adversaires en coupant leur chemin. Récupérez des power-ups sur la fcarte pour survivre et rendre la tâche plus compliquée aux autres joueurs.",
+  "game.description": "&fMontez à dos d'un mouton supersonique et éliminez vos adversaires en coupant leur chemin. Récupérez des power-ups sur la carte pour survivre et rendre la tâche plus compliquée aux autres joueurs.",
 
   "player.eliminated": "%player% &7est éliminé.",
 
   "scoreboard.players": "Joueurs: ",
+  "scoreboard.power-up": "&fProchain Power-Up: &b%time%s",
   "scoreboard.time": "Temps: ",
 
-  "starting.go": "&bGO !"
+  "starting.go": "&bGO !",
+
+  "power-up.speed.display": "Hyper Vitesse",
+  "power-up.speed.description": "&7Augmente la vitesse de ton mouton\n&7pour aller plus vite! &8(5s)",
+  "power-up.blind.display": "Brouillard",
+  "power-up.blind.description": "&7Aveugle les joueurs à proximité pendant\n&7un court instant. &8(8s)",
+  "power-up.jump.display": "Turbo Propulsion",
+  "power-up.jump.description": "&7Permet de sauter par dessus des\n&7obstacles pour te sortir d'une mauvaise\n&7situation.",
+  "power-up.explosion.display": "Passage en force",
+  "power-up.explosion.description": "&7Fait exploser les blocs proche de toi\n&7pour te frayer un chemin.",
+  "power-up.teleportation.display": "Teleportation",
+  "power-up.teleportation.description": "&7Téléporte toi vers une autre\n&7personne de la partie.",
+
+  "power-up.new.subtitle": "&7Nouveau Power-Up",
+  "power-up.teleportation.title": "&f&k||&r &bTéléportation &f&k||",
+  "power-up.teleportation.subtitle": "&7Vers %player%",
+
+  "item.right-click": "&7(Clic droit)"
 }

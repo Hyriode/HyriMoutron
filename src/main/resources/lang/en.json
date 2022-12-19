@@ -4,7 +4,25 @@
   "player.eliminated": "%player% &7is eliminated.",
 
   "scoreboard.players": "Players: ",
+  "scoreboard.power-up": "&fNext Power-Up: &b%time%s",
   "scoreboard.time": "Time: ",
 
-  "starting.go": "&bGO !"
+  "starting.go": "&bGO !",
+
+  "power-up.speed.display": "Hyper Speed",
+  "power-up.speed.description": "&7Increases the speed of your sheep\n&7to go faster! &8(5s)",
+  "power-up.blind.display": "Fog",
+  "power-up.blind.description": "&7Blinds nearby players for a short\n&7time. &8(8s)",
+  "power-up.jump.display": "Turbo Propulsion",
+  "power-up.jump.description": "&7Allows to jump over obstacles to\n&7get you out of a bad situation.",
+  "power-up.explosion.display": "Force the way",
+  "power-up.explosion.description": "&7Blow up the blocks near you\n&7to clear your way.",
+  "power-up.teleportation.display": "Teleportation",
+  "power-up.teleportation.description": "&7Teleport yourself to another\n&7player of the game.",
+
+  "power-up.new.subtitle": "&7New Power-Up",
+  "power-up.teleportation.title": "&f&k||&r &bTeleportation &f&k||",
+  "power-up.teleportation.subtitle": "&7To %player%",
+
+  "item.right-click": "&7(Right-click)"
 }

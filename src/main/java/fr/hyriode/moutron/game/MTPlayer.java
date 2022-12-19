@@ -6,20 +6,25 @@ import fr.hyriode.hyrame.packet.PacketUtil;
 import fr.hyriode.hyrame.reflection.Reflection;
 import fr.hyriode.hyrame.utils.BroadcastUtil;
 import fr.hyriode.moutron.HyriMoutron;
+import fr.hyriode.moutron.game.powerup.MTPowerUp;
 import fr.hyriode.moutron.game.scoreboard.MTScoreboard;
 import fr.hyriode.moutron.language.MTMessage;
-import net.minecraft.server.v1_8_R3.*;
+import fr.hyriode.moutron.util.WorldUtil;
+import net.minecraft.server.v1_8_R3.EntitySheep;
+import net.minecraft.server.v1_8_R3.GenericAttributes;
+import net.minecraft.server.v1_8_R3.PacketPlayOutEntityHeadRotation;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftSheep;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Sheep;
-import org.bukkit.entity.TNTPrimed;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.ArrayList;
@@ -29,6 +34,10 @@ import java.util.ArrayList;
  * on 17/12/2022 at 09:54
  */
 public class MTPlayer extends HyriGamePlayer {
+
+    private MTPowerUp powerUp;
+    private double speed = 1.0d;
+    private Location forcedLocation;
 
     private Sheep sheep;
     private EntitySheep nmsSheep;
@@ -47,6 +56,14 @@ public class MTPlayer extends HyriGamePlayer {
         // Teleport to his spawn
         this.player.teleport(spawn);
 
+        // Setup inventory
+        final ItemStack barrier = new ItemStack(Material.BARRIER);
+        final PlayerInventory inventory = this.player.getInventory();
+
+        inventory.setChestplate(barrier);
+        inventory.setLeggings(barrier);
+        inventory.setBoots(barrier);
+
         // Spawn the sheep
         this.sheep = (Sheep) IHyrame.WORLD.get().spawnEntity(spawn, EntityType.SHEEP);
         this.sheep.setColor(this.getTeam().getColor().getDyeColor());
@@ -64,10 +81,16 @@ public class MTPlayer extends HyriGamePlayer {
             return;
         }
 
+        if (this.forcedLocation != null) {
+            this.nmsSheep.setPositionRotation(this.forcedLocation.getX(), this.forcedLocation.getY(), this.forcedLocation.getZ(), this.forcedLocation.getYaw(), 0); // Move the entity to the forced location
+            this.forcedLocation = null;
+            return;
+        }
+
         final Location sheepLocation = this.sheep.getLocation();
         final Location newLocation = sheepLocation.clone();
 
-        newLocation.add(sheepLocation.getDirection().multiply(0.85D));
+        newLocation.add(sheepLocation.getDirection().multiply(0.85D * this.speed));
 
         final Block locationBlock = IHyrame.WORLD.get().getBlockAt(newLocation);
 
@@ -78,18 +101,14 @@ public class MTPlayer extends HyriGamePlayer {
             if (upperBlock.getType() == Material.AIR) {
                 newLocation.setY(upperBlock.getY());
             } else { // The sheep will collide a wall, so the player is eliminated
-                this.setSpectator(true);
                 this.lose();
                 return;
             }
         }
 
-        final NavigationAbstract navigation = this.nmsSheep.getNavigation();
-        final PathEntity path = navigation.a(newLocation.getX(), newLocation.getY(), newLocation.getZ()); // Create a path to the location
+        PacketUtil.sendPacket(new PacketPlayOutEntityHeadRotation(this.nmsSheep, (byte) (this.player.getLocation().getYaw() * 256.0F / 360.0F))); // Set entity track player's yaw
 
-        this.nmsSheep.setPositionRotation(newLocation.getX(), newLocation.getY(), newLocation.getZ(), this.player.getLocation().getYaw(), 0); // Set entity track player's yaw
-
-        navigation.a(path, 1.0f); // Move the entity to the created path with a given speed
+        this.nmsSheep.setPositionRotation(newLocation.getX(), newLocation.getY(), newLocation.getZ(), this.player.getLocation().getYaw(), 0); // Move the entity
 
         // Place glass blocks
         Bukkit.getScheduler().runTaskLater(HyriMoutron.get(), () -> {
@@ -117,7 +136,9 @@ public class MTPlayer extends HyriGamePlayer {
     }
 
     public void lose() {
-        this.explode();
+        this.setSpectator(true);
+
+        WorldUtil.createExplosion(this.sheep.getLocation(), 5);
 
         this.sheep.remove();
         this.sheep = null;
@@ -129,17 +150,28 @@ public class MTPlayer extends HyriGamePlayer {
         this.game.win(this.game.getWinner());
     }
 
-    private void explode() {
-        final Location location = this.sheep.getLocation();
-        final TNTPrimed tnt = (TNTPrimed) IHyrame.WORLD.get().spawnEntity(location, EntityType.PRIMED_TNT);
-
-        PacketUtil.sendPacket(new PacketPlayOutEntityDestroy(tnt.getEntityId()));
-
-        tnt.setFuseTicks(0);
-    }
-
     public Sheep getSheep() {
         return this.sheep;
+    }
+
+    public MTPowerUp getPowerUp() {
+        return this.powerUp;
+    }
+
+    public void setPowerUp(MTPowerUp powerUp) {
+        this.powerUp = powerUp;
+    }
+
+    public void setSpeed(double speed) {
+        this.speed = speed;
+    }
+
+    public void resetSpeed() {
+        this.speed = 1.0d;
+    }
+
+    public void setForcedLocation(Location forcedLocation) {
+        this.forcedLocation = forcedLocation;
     }
 
 }

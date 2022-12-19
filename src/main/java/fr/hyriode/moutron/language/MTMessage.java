@@ -20,9 +20,16 @@ public enum MTMessage {
     PLAYER_ELIMINATED("player.eliminated"),
 
     SCOREBOARD_PLAYERS("scoreboard.players"),
+    SCOREBOARD_POWER_UP("scoreboard.power-up"),
     SCOREBOARD_TIME("scoreboard.time"),
 
     STARTING_GO("starting.go"),
+
+    POWER_UP_NEW_SUBTITLE("power-up.new.subtitle"),
+    POWER_UP_TELEPORTATION_TITLE("power-up.teleportation.title"),
+    POWER_UP_TELEPORTATION_SUBTITLE("power-up.teleportation.subtitle"),
+
+    ITEM_RIGHT_CLICK("item.right-click")
 
     ;
 

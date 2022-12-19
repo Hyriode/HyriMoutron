@@ -27,6 +27,7 @@ import java.util.function.Function;
 public class MTGame extends HyriGame<MTPlayer> {
 
     public static final String BLOCK_METADATA = "MoutronBlock";
+    public static final String TNT_RADIUS_METADATA = "MoutronTNTRadius";
 
     private final MTConfig config;
 
@@ -74,7 +75,8 @@ public class MTGame extends HyriGame<MTPlayer> {
                    this.cancel();
 
                    // Update sheep every tick
-                   Bukkit.getScheduler().runTaskTimer(plugin, () -> updateSheeps(), 10L, 1L);
+                   Bukkit.getScheduler().runTaskTimer(plugin, () -> updateSheeps(), 0L, 1L);
+                   HyriMoutron.get().getPowerUpHandler().start();
                } else if (this.index <= 3){
                    this.alert(target -> ChatColor.AQUA + String.valueOf(this.index), Sound.NOTE_PLING, 0.2f * (5 - this.index), 0.5f);
                } else {
@@ -89,7 +91,7 @@ public class MTGame extends HyriGame<MTPlayer> {
                    final Player player = gamePlayer.getPlayer();
 
                    player.playSound(player.getLocation(), sound, volume, pitch);
-                   Title.sendTitle(player, message.apply(player), "", 0, 20, 0);
+                   Title.sendTitle(player, message.apply(player), "", 0, 25, 0);
                }
            }
 

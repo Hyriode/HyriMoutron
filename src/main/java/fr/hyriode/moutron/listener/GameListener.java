@@ -25,6 +25,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
 import org.spigotmc.event.entity.EntityDismountEvent;
@@ -36,9 +39,9 @@ import java.util.List;
  * Created by AstFaster
  * on 17/12/2022 at 11:59
  */
-public class PlayerListener extends HyriListener<HyriMoutron> {
+public class GameListener extends HyriListener<HyriMoutron> {
 
-    public PlayerListener(HyriMoutron plugin) {
+    public GameListener(HyriMoutron plugin) {
         super(plugin);
 
         HyriAPI.get().getEventBus().register(this);
@@ -76,7 +79,10 @@ public class PlayerListener extends HyriListener<HyriMoutron> {
     @SuppressWarnings("deprecation")
     @EventHandler
     public void onExplosion(EntityExplodeEvent event) {
-        for (Block block : this.generateSphere(event.getEntity().getLocation(), 5)) {
+        final Entity entity = event.getEntity();
+        final int radius = entity.hasMetadata(MTGame.TNT_RADIUS_METADATA) ? entity.getMetadata(MTGame.TNT_RADIUS_METADATA).get(0).asInt() : 5;
+
+        for (Block block : this.generateSphere(entity.getLocation(), radius)) {
             final FallingBlock fallingBlock = IHyrame.WORLD.get().spawnFallingBlock(block.getLocation(), block.getType(), block.getData());
             final float x = (float) (Math.random());
             final float y = (float) (Math.random());
@@ -102,6 +108,30 @@ public class PlayerListener extends HyriListener<HyriMoutron> {
         }
     }
 
+    @EventHandler
+    public void onClick(InventoryClickEvent event) {
+        final Player player = (Player) event.getWhoClicked();
+        final MTPlayer gamePlayer = this.plugin.getGame().getPlayer(player);
+
+        if (gamePlayer == null) {
+            return;
+        }
+
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onDrop(PlayerDropItemEvent event) {
+        final Player player = event.getPlayer();
+        final MTPlayer gamePlayer = this.plugin.getGame().getPlayer(player);
+
+        if (gamePlayer == null) {
+            return;
+        }
+
+        event.setCancelled(true);
+    }
+
     @HyriEventHandler
     public void onSpectator(HyriGameSpectatorEvent event) {
         final HyriGameSpectator spectator = event.getSpectator();
@@ -119,7 +149,9 @@ public class PlayerListener extends HyriListener<HyriMoutron> {
         if (event.getGame().getState() == HyriGameState.PLAYING) {
             final MTPlayer gamePlayer = event.getGamePlayer().cast();
 
-            gamePlayer.lose();
+            if (!gamePlayer.isSpectator()) {
+                gamePlayer.lose();
+            }
         }
     }
 
@@ -144,7 +176,6 @@ public class PlayerListener extends HyriListener<HyriMoutron> {
                 }
             }
         }
-
         return blocks;
     }
 

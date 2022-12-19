@@ -7,6 +7,7 @@ import fr.hyriode.hyrame.plugin.IPluginProvider;
 import fr.hyriode.moutron.config.MTConfig;
 import fr.hyriode.moutron.dev.DevConfig;
 import fr.hyriode.moutron.game.MTGame;
+import fr.hyriode.moutron.game.powerup.MTPowerUpHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -35,6 +36,7 @@ public class HyriMoutron extends JavaPlugin implements IPluginProvider {
     private IHyrame hyrame;
     private MTConfig config;
     private MTGame game;
+    private MTPowerUpHandler powerUpHandler;
 
     @Override
     public void onEnable() {
@@ -48,8 +50,8 @@ public class HyriMoutron extends JavaPlugin implements IPluginProvider {
 
         this.hyrame = HyrameLoader.load(this);
         this.config = HyriAPI.get().getConfig().isDevEnvironment() ? new DevConfig() : HyriAPI.get().getServer().getConfig(MTConfig.class);
-
         this.hyrame.getGameManager().registerGame(() -> this.game = new MTGame());
+        this.powerUpHandler = new MTPowerUpHandler();
     }
 
     @Override
@@ -85,12 +87,16 @@ public class HyriMoutron extends JavaPlugin implements IPluginProvider {
         return this.hyrame;
     }
 
+    public MTConfig getConfiguration() {
+        return this.config;
+    }
+
     public MTGame getGame() {
         return this.game;
     }
 
-    public MTConfig getConfiguration() {
-        return this.config;
+    public MTPowerUpHandler getPowerUpHandler() {
+        return this.powerUpHandler;
     }
 
     @Override
