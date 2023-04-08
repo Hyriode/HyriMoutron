@@ -8,7 +8,7 @@ import fr.hyriode.hyrame.game.HyriGameType;
  */
 public enum MTGameType implements HyriGameType {
 
-    SOLO("Solo", 4, 8)
+    SOLO("Solo", 4, 6)
     ;
 
     private final String displayName;

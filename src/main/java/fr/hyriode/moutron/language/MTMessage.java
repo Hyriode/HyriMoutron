@@ -18,6 +18,7 @@ public enum MTMessage {
     GAME_DESCRIPTION("game.description"),
 
     PLAYER_ELIMINATED("player.eliminated"),
+    PLAYER_ELIMINATED_KILL("player.eliminated-kill"),
 
     SCOREBOARD_PLAYERS("scoreboard.players"),
     SCOREBOARD_POWER_UP("scoreboard.power-up"),

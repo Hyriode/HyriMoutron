@@ -5,7 +5,9 @@ import fr.hyriode.hyrame.game.HyriGamePlayer;
 import fr.hyriode.hyrame.packet.PacketUtil;
 import fr.hyriode.hyrame.reflection.Reflection;
 import fr.hyriode.hyrame.utils.BroadcastUtil;
+import fr.hyriode.hyrame.utils.block.BlockUtil;
 import fr.hyriode.moutron.HyriMoutron;
+import fr.hyriode.moutron.api.MTStatistics;
 import fr.hyriode.moutron.game.powerup.MTPowerUp;
 import fr.hyriode.moutron.game.scoreboard.MTScoreboard;
 import fr.hyriode.moutron.language.MTMessage;
@@ -26,14 +28,24 @@ import org.bukkit.entity.Sheep;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by AstFaster
  * on 17/12/2022 at 09:54
  */
 public class MTPlayer extends HyriGamePlayer {
+
+    private MTStatistics statistics;
+
+    private final List<Block> blocks = new ArrayList<>();
+
+    private int kills;
+    private MTPlayer killer;
 
     private MTPowerUp powerUp;
     private double speed = 1.0d;
@@ -101,6 +113,16 @@ public class MTPlayer extends HyriGamePlayer {
             if (upperBlock.getType() == Material.AIR) {
                 newLocation.setY(upperBlock.getY());
             } else { // The sheep will collide a wall, so the player is eliminated
+                if (locationBlock.hasMetadata(MTGame.BLOCK_METADATA)) {
+                    final UUID killerId = (UUID) locationBlock.getMetadata(MTGame.BLOCK_METADATA).get(0).value();
+
+                    this.killer = this.game.getPlayer(killerId);
+
+                    if (this.killer != null) {
+                        this.killer.kills++;
+                    }
+                }
+
                 this.lose();
                 return;
             }
@@ -112,6 +134,10 @@ public class MTPlayer extends HyriGamePlayer {
 
         // Place glass blocks
         Bukkit.getScheduler().runTaskLater(HyriMoutron.get(), () -> {
+            if (this.isSpectator() || !this.isOnline()) {
+                return;
+            }
+
             final Block lastLocationBlock = IHyrame.WORLD.get().getBlockAt(newLocation);
             final Block upperBlock = lastLocationBlock.getRelative(BlockFace.UP);
 
@@ -131,10 +157,15 @@ public class MTPlayer extends HyriGamePlayer {
 
                 lastLocationBlock.setMetadata(MTGame.BLOCK_METADATA, metadata);
                 upperBlock.setMetadata(MTGame.BLOCK_METADATA, metadata);
+
+                // Save blocks
+                this.blocks.add(lastLocationBlock);
+                this.blocks.add(upperBlock);
             }
         }, 6L);
     }
 
+    @SuppressWarnings("deprecation")
     public void lose() {
         this.setSpectator(true);
 
@@ -143,10 +174,27 @@ public class MTPlayer extends HyriGamePlayer {
         this.sheep.remove();
         this.sheep = null;
 
+        // Remove player's blocks
+        for (Block block : this.blocks) {
+            if (block.getType() == Material.STAINED_GLASS && block.getData() == this.getTeam().getColor().getDyeColor().getData()) {
+                BlockUtil.setBlockFaster(block, 0, 0);
+            }
+        }
+
+        this.blocks.clear();
+
         IHyrame.get().getScoreboardManager().getScoreboards(MTScoreboard.class).forEach(MTScoreboard::update);
 
-        BroadcastUtil.broadcast(target -> MTMessage.PLAYER_ELIMINATED.asString(target).replace("%player%", this.formatNameWithTeam()));
+        if (this.killer != null) {
+            BroadcastUtil.broadcast(target -> MTMessage.PLAYER_ELIMINATED_KILL.asString(target)
+                    .replace("%player%", this.formatNameWithTeam())
+                    .replace("%killer%", this.formatNameWithTeam()));
+        } else {
+            BroadcastUtil.broadcast(target -> MTMessage.PLAYER_ELIMINATED.asString(target)
+                    .replace("%player%", this.formatNameWithTeam()));
+        }
 
+        this.statistics.getData(this.game.getType()).addDeaths(1);
         this.game.win(this.game.getWinner());
     }
 
@@ -172,6 +220,18 @@ public class MTPlayer extends HyriGamePlayer {
 
     public void setForcedLocation(Location forcedLocation) {
         this.forcedLocation = forcedLocation;
+    }
+
+    public MTStatistics getStatistics() {
+        return this.statistics;
+    }
+
+    public void setStatistics(MTStatistics statistics) {
+        this.statistics = statistics;
+    }
+
+    public int getKills() {
+        return this.kills;
     }
 
 }

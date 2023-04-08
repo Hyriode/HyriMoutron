@@ -1,8 +1,8 @@
 package fr.hyriode.moutron.config;
 
+import fr.hyriode.api.config.IHyriConfig;
 import fr.hyriode.hyrame.game.waitingroom.HyriWaitingRoom;
 import fr.hyriode.hyrame.utils.LocationWrapper;
-import fr.hyriode.hystia.api.config.IConfig;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ import java.util.List;
  * Created by AstFaster
  * on 23/07/2022 at 11:48
  */
-public class MTConfig implements IConfig {
+public class MTConfig implements IHyriConfig {
 
     private final HyriWaitingRoom.Config waitingRoom;
     private final List<LocationWrapper> spawns;

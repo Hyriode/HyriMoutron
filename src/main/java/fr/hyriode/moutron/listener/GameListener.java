@@ -143,17 +143,6 @@ public class GameListener extends HyriListener<HyriMoutron> {
         }
     }
 
-    @HyriEventHandler
-    public void onLeave(HyriGameLeaveEvent event) {
-        if (event.getGame().getState() == HyriGameState.PLAYING) {
-            final MTPlayer gamePlayer = event.getGamePlayer().cast();
-
-            if (!gamePlayer.isSpectator()) {
-                gamePlayer.lose();
-            }
-        }
-    }
-
     private List<Block> generateSphere(Location center, int radius) {
         final List<Block> blocks = new ArrayList<>();
         final int bX = center.getBlockX();

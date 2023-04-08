@@ -1,7 +1,24 @@
 {
   "game.description": "&fMontez à dos d'un mouton supersonique et éliminez vos adversaires en coupant leur chemin. Récupérez des power-ups sur la carte pour survivre et rendre la tâche plus compliquée aux autres joueurs.",
 
+  "waiting-room.npc.kills": "Kills",
+  "waiting-room.npc.deaths": "Morts",
+  "waiting-room.npc.victories": "Victoires",
+  "waiting-room.npc.games-played": "Parties jouées",
+  "waiting-room.npc.played-time": "Temps de jeu",
+
+  "leaderboard.experience.display": "&3Expérience &8┃ &7Classement",
+  "leaderboard.kills.display": "&3Kills &8┃ &7Classement",
+  "leaderboard.victories.display": "&3Victoires &8┃ &7Classement",
+
+  "message.game.end.kills": "%position% %player% &7- &b%kills%",
+  "message.game.end.1": "§e1er",
+  "message.game.end.2": "§62ème",
+  "message.game.end.3": "§c3ème",
+  "message.game.end.nobody": "&7Personne",
+
   "player.eliminated": "%player% &7est éliminé.",
+  "player.eliminated-kill": "%player% &7s'est écrasé sur le mur de %killer%&7.",
 
   "scoreboard.players": "Joueurs: ",
   "scoreboard.power-up": "&fProchain Power-Up: &b%time%s",

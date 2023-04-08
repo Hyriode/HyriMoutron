@@ -45,12 +45,12 @@ repositories {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'fr.hyriode:hyrame:1.3.5'
+    compileOnly fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'fr.hyriode:hyrame:1.3.9-SNAPSHOT'
 }
 
 processResources {
     filter {
-        it.replace('@version@', project.version)
+        it.replace('@version@', "${ project.version }-${ commitSha }-${ buildNumber }")
     }
 }

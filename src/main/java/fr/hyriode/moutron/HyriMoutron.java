@@ -1,6 +1,7 @@
 package fr.hyriode.moutron;
 
 import fr.hyriode.api.HyriAPI;
+import fr.hyriode.hyggdrasil.api.server.HyggServer;
 import fr.hyriode.hyrame.HyrameLoader;
 import fr.hyriode.hyrame.IHyrame;
 import fr.hyriode.hyrame.plugin.IPluginProvider;
@@ -52,6 +53,8 @@ public class HyriMoutron extends JavaPlugin implements IPluginProvider {
         this.config = HyriAPI.get().getConfig().isDevEnvironment() ? new DevConfig() : HyriAPI.get().getServer().getConfig(MTConfig.class);
         this.hyrame.getGameManager().registerGame(() -> this.game = new MTGame());
         this.powerUpHandler = new MTPowerUpHandler();
+
+        HyriAPI.get().getServer().setState(HyggServer.State.READY);
     }
 
     @Override

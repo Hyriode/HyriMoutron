@@ -1,13 +1,22 @@
 package fr.hyriode.moutron.game;
 
 import fr.hyriode.api.HyriAPI;
+import fr.hyriode.api.language.HyriLanguageMessage;
+import fr.hyriode.api.leaderboard.IHyriLeaderboardProvider;
+import fr.hyriode.api.leveling.NetworkLeveling;
+import fr.hyriode.api.player.IHyriPlayer;
 import fr.hyriode.hyrame.IHyrame;
 import fr.hyriode.hyrame.game.HyriGame;
+import fr.hyriode.hyrame.game.HyriGamePlayer;
+import fr.hyriode.hyrame.game.HyriGameState;
 import fr.hyriode.hyrame.game.HyriGameType;
 import fr.hyriode.hyrame.game.team.HyriGameTeam;
+import fr.hyriode.hyrame.game.util.HyriGameMessages;
+import fr.hyriode.hyrame.game.util.HyriRewardAlgorithm;
 import fr.hyriode.hyrame.title.Title;
 import fr.hyriode.hyrame.utils.LocationWrapper;
 import fr.hyriode.moutron.HyriMoutron;
+import fr.hyriode.moutron.api.MTStatistics;
 import fr.hyriode.moutron.config.MTConfig;
 import fr.hyriode.moutron.language.MTMessage;
 import org.bukkit.Bukkit;
@@ -17,7 +26,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Sheep;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -51,11 +60,46 @@ public class MTGame extends HyriGame<MTPlayer> {
     }
 
     @Override
+    public void handleLogin(Player player) {
+        super.handleLogin(player);
+
+        final MTPlayer gamePlayer = this.getPlayer(player);
+        final MTStatistics statistics = MTStatistics.get(gamePlayer.getUniqueId());
+
+        gamePlayer.setStatistics(statistics);
+    }
+
+    @Override
+    public void handleLogout(Player player) {
+        super.handleLogout(player);
+
+        final MTPlayer gamePlayer = this.getPlayer(player);
+        final IHyriPlayer account = gamePlayer.asHyriPlayer();
+        final MTStatistics statistics = gamePlayer.getStatistics();
+        final MTStatistics.Data statisticsData = statistics.getData(this.getType());
+
+        if (!this.getState().isAccessible()) {
+            statisticsData.addGamesPlayed(1);
+            statisticsData.addKills(gamePlayer.getKills());
+        }
+
+        statistics.update(account);
+
+        if (this.getState() == HyriGameState.PLAYING) {
+            if (!gamePlayer.isSpectator()) {
+                gamePlayer.lose();
+            }
+        }
+    }
+
+    @Override
     public void start() {
         super.start();
 
         // Teleport players to their spawn
         final List<LocationWrapper> spawns = this.config.getSpawns();
+
+        Collections.shuffle(spawns);
 
         int spawnIndex = 0;
         for (MTPlayer player : this.players) {
@@ -88,6 +132,10 @@ public class MTGame extends HyriGame<MTPlayer> {
 
            private void alert(Function<Player, String> message, Sound sound, float volume, float pitch) {
                for (MTPlayer gamePlayer : players) {
+                   if (!gamePlayer.isOnline()) {
+                       continue;
+                   }
+
                    final Player player = gamePlayer.getPlayer();
 
                    player.playSound(player.getLocation(), sound, volume, pitch);
@@ -115,6 +163,86 @@ public class MTGame extends HyriGame<MTPlayer> {
 
             sheep.remove();
         }
+
+        for (HyriGamePlayer player : winner.getPlayers()) {
+            final MTPlayer gamePlayer = player.cast();
+
+            gamePlayer.getStatistics().getData(this.getType()).addVictories(1);
+        }
+
+        this.sendWinMessage(winner);
+    }
+
+    private void sendWinMessage(HyriGameTeam winner) {
+        final List<HyriLanguageMessage> positions = Arrays.asList(
+                HyriLanguageMessage.get("message.game.end.1"),
+                HyriLanguageMessage.get("message.game.end.2"),
+                HyriLanguageMessage.get("message.game.end.3")
+        );
+
+        final List<MTPlayer> topKillers = new ArrayList<>(this.players);
+
+        topKillers.sort((o1, o2) -> o2.getKills() - o1.getKills());
+
+        final Function<Player, List<String>> killersLineProvider = player -> {
+            final List<String> killersLine = new ArrayList<>();
+
+            for (int i = 0; i <= 2; i++) {
+                final String killerLine = HyriLanguageMessage.get("message.game.end.kills").getValue(player).replace("%position%", positions.get(i).getValue(player));
+
+                if (topKillers.size() > i){
+                    final MTPlayer topKiller = topKillers.get(i);
+
+                    killersLine.add(killerLine.replace("%player%", topKiller.formatNameWithTeam()).replace("%kills%", String.valueOf(topKiller.getKills())));
+                    continue;
+                }
+
+                killersLine.add(killerLine.replace("%player%", HyriLanguageMessage.get("message.game.end.nobody").getValue(player)).replace("%kills%", "0"));
+            }
+
+            return killersLine;
+        };
+
+        // Send message to not-playing players
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            final MTPlayer gamePlayer = this.getPlayer(player);
+
+            if (gamePlayer == null) {
+                player.spigot().sendMessage(HyriGameMessages.createWinMessage(this, player, winner, killersLineProvider.apply(player), null));
+            }
+        }
+
+        for (MTPlayer gamePlayer : this.players) {
+            final IHyriPlayer account = gamePlayer.asHyriPlayer();
+            final UUID playerId = gamePlayer.getUniqueId();
+            final int kills = gamePlayer.getKills();
+            final boolean isWinner = winner.contains(gamePlayer);
+            final long hyris = account.getHyris().add(HyriRewardAlgorithm.getHyris(kills, gamePlayer.getPlayTime(), isWinner)).withMessage(false).exec();
+            final double xp = account.getNetworkLeveling().addExperience(HyriRewardAlgorithm.getXP(kills, gamePlayer.getPlayTime(), isWinner));
+
+            // Update leaderboards
+            final IHyriLeaderboardProvider provider = HyriAPI.get().getLeaderboardProvider();
+
+            provider.getLeaderboard(NetworkLeveling.LEADERBOARD_TYPE, "rotating-game-experience").incrementScore(playerId, xp);
+            provider.getLeaderboard(HyriMoutron.ID, "kills").incrementScore(playerId, kills);
+
+            if (isWinner) {
+                provider.getLeaderboard(HyriMoutron.ID, "victories").incrementScore(playerId, 1);
+            }
+
+            account.update();
+
+            // Send message
+            final String rewardsLine = ChatColor.LIGHT_PURPLE + "+" + hyris + " Hyris " + ChatColor.GREEN + "+" + xp + " XP";
+
+            if (gamePlayer.isOnline()) {
+                final Player player = gamePlayer.getPlayer();
+
+                player.spigot().sendMessage(HyriGameMessages.createWinMessage(this, gamePlayer.getPlayer(), winner, killersLineProvider.apply(player), rewardsLine));
+            } else if (HyriAPI.get().getPlayerManager().isOnline(playerId)) {
+                HyriAPI.get().getPlayerManager().sendMessage(playerId, HyriGameMessages.createOfflineWinMessage(this, account, rewardsLine));
+            }
+        }
     }
 
     private void updateSheeps() {
@@ -135,6 +263,11 @@ public class MTGame extends HyriGame<MTPlayer> {
             }
         }
         return winner;
+    }
+
+    @Override
+    public MTGameType getType() {
+        return (MTGameType) super.getType();
     }
 
 }

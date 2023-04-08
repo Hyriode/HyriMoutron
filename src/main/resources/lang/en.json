@@ -1,7 +1,24 @@
 {
   "game.description": "&fRide on a supersonic sheep and eliminate all your opponents by cutting their way. Pick up power-ups on the map to survive and ot make it harder for other players.",
 
+  "waiting-room.npc.kills": "Kills",
+  "waiting-room.npc.deaths": "Deaths",
+  "waiting-room.npc.victories": "Victories",
+  "waiting-room.npc.games-played": "Games played",
+  "waiting-room.npc.played-time": "Played time",
+
+  "leaderboard.experience.display": "&3Experience &8┃ &7Leaderboard",
+  "leaderboard.kills.display": "&3Kills &8┃ &7Leaderboard",
+  "leaderboard.victories.display": "&3Victories &8┃ &7Leaderboard",
+
+  "message.game.end.kills": "%position% %player% &7- &b%kills%",
+  "message.game.end.1": "§e1st",
+  "message.game.end.2": "§62nd",
+  "message.game.end.3": "§c3rd",
+  "message.game.end.nobody": "&7Nobody",
+
   "player.eliminated": "%player% &7is eliminated.",
+  "player.eliminated-kill": "%player% &7crashed on the wall of %killer%&7.",
 
   "scoreboard.players": "Players: ",
   "scoreboard.power-up": "&fNext Power-Up: &b%time%s",
