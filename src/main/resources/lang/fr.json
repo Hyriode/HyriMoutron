@@ -11,7 +11,7 @@
   "leaderboard.kills.display": "&3Kills &8┃ &7Classement",
   "leaderboard.victories.display": "&3Victoires &8┃ &7Classement",
 
-  "message.game.end.kills": "%position% %player% &7- &b%kills%",
+  "message.game.end.position": "%position% %player%",
   "message.game.end.1": "§e1er",
   "message.game.end.2": "§62ème",
   "message.game.end.3": "§c3ème",

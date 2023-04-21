@@ -180,27 +180,26 @@ public class MTGame extends HyriGame<MTPlayer> {
                 HyriLanguageMessage.get("message.game.end.3")
         );
 
-        final List<MTPlayer> topKillers = new ArrayList<>(this.players);
+        final List<MTPlayer> top = new ArrayList<>(this.players);
 
-        topKillers.sort((o1, o2) -> o2.getKills() - o1.getKills());
+        top.sort(Comparator.comparingInt(MTPlayer::getPosition));
 
-        final Function<Player, List<String>> killersLineProvider = player -> {
-            final List<String> killersLine = new ArrayList<>();
+        final Function<Player, List<String>> positionLinesProvider = player -> {
+            final List<String> positionLines = new ArrayList<>();
 
             for (int i = 0; i <= 2; i++) {
-                final String killerLine = HyriLanguageMessage.get("message.game.end.kills").getValue(player).replace("%position%", positions.get(i).getValue(player));
+                final String positionLine = HyriLanguageMessage.get("message.game.end.position").getValue(player).replace("%position%", positions.get(i).getValue(player));
 
-                if (topKillers.size() > i){
-                    final MTPlayer topKiller = topKillers.get(i);
+                if (top.size() > i){
+                    final MTPlayer topPlayer = top.get(i);
 
-                    killersLine.add(killerLine.replace("%player%", topKiller.formatNameWithTeam()).replace("%kills%", String.valueOf(topKiller.getKills())));
+                    positionLines.add(positionLine.replace("%player%", topPlayer.formatNameWithTeam()));
                     continue;
                 }
 
-                killersLine.add(killerLine.replace("%player%", HyriLanguageMessage.get("message.game.end.nobody").getValue(player)).replace("%kills%", "0"));
+                positionLines.add(positionLine.replace("%player%", HyriLanguageMessage.get("message.game.end.nobody").getValue(player)));
             }
-
-            return killersLine;
+            return positionLines;
         };
 
         // Send message to not-playing players
@@ -208,7 +207,7 @@ public class MTGame extends HyriGame<MTPlayer> {
             final MTPlayer gamePlayer = this.getPlayer(player);
 
             if (gamePlayer == null) {
-                player.spigot().sendMessage(HyriGameMessages.createWinMessage(this, player, winner, killersLineProvider.apply(player), null));
+                player.spigot().sendMessage(HyriGameMessages.createWinMessage(this, player, winner, positionLinesProvider.apply(player), null));
             }
         }
 
@@ -238,7 +237,7 @@ public class MTGame extends HyriGame<MTPlayer> {
             if (gamePlayer.isOnline()) {
                 final Player player = gamePlayer.getPlayer();
 
-                player.spigot().sendMessage(HyriGameMessages.createWinMessage(this, gamePlayer.getPlayer(), winner, killersLineProvider.apply(player), rewardsLine));
+                player.spigot().sendMessage(HyriGameMessages.createWinMessage(this, gamePlayer.getPlayer(), winner, positionLinesProvider.apply(player), rewardsLine));
             } else if (HyriAPI.get().getPlayerManager().isOnline(playerId)) {
                 HyriAPI.get().getPlayerManager().sendMessage(playerId, HyriGameMessages.createOfflineWinMessage(this, account, rewardsLine));
             }

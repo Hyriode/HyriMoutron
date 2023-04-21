@@ -2,6 +2,7 @@ package fr.hyriode.moutron.game;
 
 import fr.hyriode.hyrame.IHyrame;
 import fr.hyriode.hyrame.game.HyriGamePlayer;
+import fr.hyriode.hyrame.game.HyriGameSpectator;
 import fr.hyriode.hyrame.packet.PacketUtil;
 import fr.hyriode.hyrame.reflection.Reflection;
 import fr.hyriode.hyrame.utils.BroadcastUtil;
@@ -33,6 +34,7 @@ import org.bukkit.metadata.MetadataValue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Created by AstFaster
@@ -43,6 +45,8 @@ public class MTPlayer extends HyriGamePlayer {
     private MTStatistics statistics;
 
     private final List<Block> blocks = new ArrayList<>();
+
+    private int position;
 
     private int kills;
     private MTPlayer killer;
@@ -99,6 +103,8 @@ public class MTPlayer extends HyriGamePlayer {
             return;
         }
 
+        this.sheep.setPassenger(this.player);
+
         final Location sheepLocation = this.sheep.getLocation();
         final Location newLocation = sheepLocation.clone();
 
@@ -117,6 +123,10 @@ public class MTPlayer extends HyriGamePlayer {
                     final UUID killerId = (UUID) locationBlock.getMetadata(MTGame.BLOCK_METADATA).get(0).value();
 
                     this.killer = this.game.getPlayer(killerId);
+
+                    if (this.killer == this) {
+                        this.killer = null;
+                    }
 
                     if (this.killer != null) {
                         this.killer.kills++;
@@ -168,6 +178,8 @@ public class MTPlayer extends HyriGamePlayer {
     @SuppressWarnings("deprecation")
     public void lose() {
         this.setSpectator(true);
+
+        this.position = (int) this.game.getPlayers().stream().filter(gamePlayer -> !gamePlayer.isSpectator()).count() + 1;
 
         WorldUtil.createExplosion(this.sheep.getLocation(), 5);
 
@@ -232,6 +244,10 @@ public class MTPlayer extends HyriGamePlayer {
 
     public int getKills() {
         return this.kills;
+    }
+
+    public int getPosition() {
+        return this.position;
     }
 
 }

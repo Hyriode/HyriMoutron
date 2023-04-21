@@ -36,8 +36,6 @@ public class TeleportationPowerUp extends MTPowerUp {
         player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1.0f, 1.2f);
         target.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1.0f, 1.2f);
 
-        // TODO Add particles
-
         gamePlayer.setForcedLocation(gameTarget.getSheep().getLocation());
         gameTarget.setForcedLocation(gamePlayer.getSheep().getLocation());
     }
