@@ -41,6 +41,10 @@ public class BlindPowerUp extends MTPowerUp {
                 final Location location = gamePlayer.getPlayer().getLocation();
 
                 for (MTPlayer gameTarget : HyriMoutron.get().getGame().getPlayers()) {
+                    if (!gameTarget.isOnline()) {
+                        continue;
+                    }
+
                     final Player target = gameTarget.getPlayer();
 
                     if (gameTarget == gamePlayer || gameTarget.isSpectator() || target.getLocation().distance(location) >= 10.0D) {
