@@ -28,8 +28,11 @@ jobs:
       - name: Build Jar
         run: gradle build
         env:
-          USERNAME: ${{ github.actor }}
-          TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_USERNAME: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+
+      - name: Rename Jar
+        run: mv build/libs/HyriMoutron-*.jar build/libs/HyriMoutron.jar
 
       - name: Upload Jar
         uses: azure/CLI@v1
